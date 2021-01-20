@@ -100,7 +100,7 @@ public class MainFrame {
         JMenuItem aboutMenu = new JMenuItem("О системе");
         aboutMenu.setHorizontalAlignment(SwingConstants.LEFT);
         aboutMenu.addActionListener(e -> {
-            File htmlFile = new File("about.html");
+            File htmlFile = new File("src/resources/about.html");
             try {
                 Desktop.getDesktop().browse(htmlFile.toURI());
             } catch (IOException ioException) {
@@ -123,16 +123,20 @@ public class MainFrame {
     }
 
     private void loadMazeFromFile(MazeGridPanel newGrid) {
-        mazeBorder.remove(grid);
-        grid = newGrid;
-        generated = true;
-        solved = false;
-        gridDisplayed = false;
-        enableGenerationParams(false);
-        enableSolvingParams(true);
-        mazeBorder.add(grid);
-        mazeBorder.repaint();
-        mazeBorder.revalidate();
+        if (newGrid != null) {
+            if (grid != null)
+                mazeBorder.remove(grid);
+            grid = newGrid;
+            generated = true;
+            solved = false;
+            gridDisplayed = false;
+            enableGenerationParams(false);
+            enableSolvingParams(true);
+            mazeBorder.add(grid);
+            mazeBorder.repaint();
+            mazeBorder.revalidate();
+        }
+
     }
 
     private void createAndShowGUI() {
@@ -169,10 +173,20 @@ public class MainFrame {
 
     private void setTheme(HobbitTheme theme) {
         switch (theme) {
-            case SHIRE -> mazeBorder.setImg(HobbitTheme.SHIRE.getBackground());
-            case EREBOR -> mazeBorder.setImg(HobbitTheme.EREBOR.getBackground());
-            case MIRKWOOD -> mazeBorder.setImg(HobbitTheme.MIRKWOOD.getBackground());
-            case RIVENDELL -> mazeBorder.setImg(HobbitTheme.RIVENDELL.getBackground());
+            case SHIRE:
+                mazeBorder.setImg(HobbitTheme.SHIRE.getBackground());
+                break;
+            case EREBOR:
+                mazeBorder.setImg(HobbitTheme.EREBOR.getBackground());
+                break;
+            case MIRKWOOD:
+                mazeBorder.setImg(HobbitTheme.MIRKWOOD.getBackground());
+                break;
+            case RIVENDELL:
+                mazeBorder.setImg(HobbitTheme.RIVENDELL.getBackground());
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + theme);
         }
         logger.log(Level.INFO, "Theme updated: " + theme.getTheme());
     }

@@ -24,6 +24,7 @@ public class KruskalGenerator {
     }
 
     public void generate() {
+
         for (Cell cell : grid) {
             disjointSet.create_set(cell.getId());
         }

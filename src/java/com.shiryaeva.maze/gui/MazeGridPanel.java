@@ -15,7 +15,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +23,6 @@ import java.util.logging.Logger;
 
 public class MazeGridPanel extends JPanel implements KeyListener, MouseListener, Serializable {
 
-    @Serial
     private static final long serialVersionUID = 6899798390690377644L;
     private final List<Cell> grid = new ArrayList<>();
     private final Logger logger = Logger.getGlobal();
@@ -34,6 +32,7 @@ public class MazeGridPanel extends JPanel implements KeyListener, MouseListener,
     private Cell start;
     private Cell goal;
     private transient Cell manualCurrent;
+    private transient Cell manualPrevious;
     private transient boolean clickable;
     private transient boolean manualSolve;
 
@@ -64,18 +63,30 @@ public class MazeGridPanel extends JPanel implements KeyListener, MouseListener,
         logger.log(Level.INFO, "manualCurrent: " + tx + " , " + ty);
         Cell candidate;
         switch (c) {
-            case KeyEvent.VK_LEFT -> tx--;
-            case KeyEvent.VK_RIGHT -> tx++;
-            case KeyEvent.VK_UP -> ty--;
-            case KeyEvent.VK_DOWN -> ty++;
-            case KeyEvent.VK_ESCAPE -> System.exit(0);
-            default -> {
+            case KeyEvent.VK_LEFT:
+                tx--;
+                break;
+            case KeyEvent.VK_RIGHT:
+                tx++;
+                break;
+            case KeyEvent.VK_UP:
+                ty--;
+                break;
+            case KeyEvent.VK_DOWN:
+                ty++;
+                break;
+            case KeyEvent.VK_ESCAPE:
+                System.exit(0);
+                break;
+            default: {
                 tx = 0;
                 ty = 0;
+                break;
             }
         }
         candidate = getCellByCoordinates(tx, ty);
         if (candidate != null && !isOutOfBorder(tx, ty) && !candidate.isDeadEnd() && manualCurrent.getValidMoveNeighbours(grid).contains(candidate)) {
+            manualPrevious = manualCurrent;
             manualCurrent = candidate;
         }
         return manualCurrent;
@@ -149,18 +160,30 @@ public class MazeGridPanel extends JPanel implements KeyListener, MouseListener,
 
     public void generate(GenerationAlgorithm algorithm) {
         switch (algorithm) {
-            case PRIM -> new PrimGenerator(grid, this).generate();
-            case KRUSKAL -> new KruskalGenerator(grid, this).generate();
-            case SIDEWINDER -> new SidewinderGenerator(grid, this).generate();
-            default -> throw new IllegalArgumentException(String.format("Unknown algorigthm: %s", algorithm));
+            case PRIM:
+                new PrimGenerator(grid, this).generate();
+                break;
+            case KRUSKAL:
+                new KruskalGenerator(grid, this).generate();
+                break;
+            case SIDEWINDER:
+                new SidewinderGenerator(grid, this).generate();
+                break;
+            default:
+                throw new IllegalArgumentException(String.format("Unknown algorigthm: %s", algorithm));
         }
     }
 
     public void solve(SolvingAlgorithm algorithm) {
         switch (algorithm) {
-            case LEE -> new LeeSolver(grid, this).solve();
-            case ONE_HAND -> new OneHandSolver(grid, this).solve();
-            default -> throw new IllegalArgumentException(String.format("Unknown algorigthm: %s", algorithm));
+            case LEE:
+                new LeeSolver(grid, this).solve();
+                break;
+            case ONE_HAND:
+                new OneHandSolver(grid, this).solve();
+                break;
+            default:
+                throw new IllegalArgumentException(String.format("Unknown algorigthm: %s", algorithm));
         }
     }
 
@@ -219,6 +242,7 @@ public class MazeGridPanel extends JPanel implements KeyListener, MouseListener,
         logger.log(Level.INFO, "start.id = " + start.getId());
         resetStart();
         this.start = start;
+        manualCurrent = start;
         start.displayAsColor(getGraphics(), ColorScheme.ENTRANCE);
         revalidate();
     }
@@ -255,12 +279,17 @@ public class MazeGridPanel extends JPanel implements KeyListener, MouseListener,
     public void keyPressed(KeyEvent e) {
         if (!MainFrame.autoSolve) {
             int c = e.getKeyCode();
-            if (manualCurrent.isPath())
-                manualCurrent.displayAsColor(getGraphics(), ColorScheme.TRANSPARENT);
             manualCurrent.setVisited(true);
-            manualCurrent = getCellFromKeyboard(c);
+            Cell candidate = getCellFromKeyboard(c);
+            if (candidate.equals(manualPrevious)) {
+                candidate.displayAsColor(getGraphics(), ColorScheme.TRANSPARENT);
+                validate();
+            }
+            manualPrevious = manualCurrent;
+            manualCurrent = candidate;
             if (manualCurrent.getColor() != ColorScheme.PATH) {
                 manualCurrent.displayAsColor(getGraphics(), ColorScheme.PATH);
+                validate();
             }
             if (manualCurrent.equals(goal)) {
                 JOptionPane.showMessageDialog(null, "Выход найден", "Поздравляем", JOptionPane.INFORMATION_MESSAGE);
@@ -289,13 +318,19 @@ public class MazeGridPanel extends JPanel implements KeyListener, MouseListener,
         if (clickable && manualSolve) {
             if (SwingUtilities.isLeftMouseButton(e)) {
                 Cell candidate = grid.get(getCellIdByCoordinates(e.getX(), e.getY()));
-                if (candidate != null && !candidate.isDeadEnd() && manualCurrent.getAllNeighbours(grid).contains(candidate) && manualCurrent.getValidMoveNeighbours(grid).contains(candidate)) {
+                if (candidate.equals(manualPrevious)) {
+                    candidate.displayAsColor(getGraphics(), ColorScheme.TRANSPARENT);
+                    validate();
+                }
+                if (!candidate.isDeadEnd() && manualCurrent.getAllNeighbours(grid).contains(candidate) && manualCurrent.getValidMoveNeighbours(grid).contains(candidate)) {
+                    manualPrevious = manualCurrent;
                     manualCurrent = candidate;
                 }
                 manualCurrent.setVisited(true);
                 manualCurrent = grid.get(getCellIdByCoordinates(e.getX(), e.getY()));
                 if (manualCurrent.getColor() != ColorScheme.PATH) {
                     manualCurrent.displayAsColor(getGraphics(), ColorScheme.PATH);
+                    validate();
                 }
                 if (manualCurrent.equals(goal)) {
                     JOptionPane.showMessageDialog(null, "Выход найден", "Поздравляем", JOptionPane.INFORMATION_MESSAGE);

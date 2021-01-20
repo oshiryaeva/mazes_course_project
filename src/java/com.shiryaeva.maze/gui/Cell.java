@@ -3,7 +3,6 @@ package com.shiryaeva.maze.gui;
 import com.shiryaeva.maze.util.ColorScheme;
 
 import java.awt.*;
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.Random;
 
 public class Cell implements Serializable {
 
-    @Serial
     private static final long serialVersionUID = -7047140074941068977L;
     private static final int TOP = 0;
     private static final int RIGHT = 1;
@@ -151,7 +149,7 @@ public class Cell implements Serializable {
         g.setColor(color);
         this.setColor(color);
         g.fillRect(x2, y2, MainFrame.cellWidth, MainFrame.cellHeight);
-        Toolkit.getDefaultToolkit().sync();
+//        Toolkit.getDefaultToolkit().sync();
     }
 
 /*    synchronized public void displayTransparent(Graphics g) {
