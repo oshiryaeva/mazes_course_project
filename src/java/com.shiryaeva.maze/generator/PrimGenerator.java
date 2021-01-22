@@ -14,6 +14,7 @@ public class PrimGenerator {
     private final List<Cell> grid;
     private final List<Cell> frontier = new ArrayList<>();
     private final Cell start;
+    private final Cell goal;
     private final MazeGridPanel panel;
     private Cell current;
 
@@ -21,7 +22,7 @@ public class PrimGenerator {
         this.grid = grid;
         this.panel = panel;
         start = panel.getStart();
-//		current = grid.get(0);
+        goal = panel.getGoal();
         current = start;
     }
 

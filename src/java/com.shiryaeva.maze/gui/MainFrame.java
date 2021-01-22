@@ -20,7 +20,7 @@ public class MainFrame {
 
     public static final int WIDTH = 600;
     public static final int HEIGHT = 600;
-    private static final int DEFAULT_GRID = 7;
+    private static final int DEFAULT_GRID = 17;
     public static int cellWidth = 20;
     public static int cellHeight = 20;
     public static int speed = 50;
@@ -203,6 +203,7 @@ public class MainFrame {
         grid.setBackground(ColorScheme.TRANSPARENT);
         mazeBorder.add(grid);
         gridDisplayed = true;
+        generated = false;
         mazeBorder.revalidate();
     }
 
@@ -645,10 +646,8 @@ public class MainFrame {
 
         showGridButton.addActionListener(e -> {
             updateGridSize();
-            exitAutoRadioButton.setEnabled(true);
-            exitManualRadioButton.setEnabled(true);
-            generationAlgorithmBox.setEnabled(true);
-            createMazeButton.setEnabled(true);
+            enableGenerationParams(true);
+            enableSolvingParams(false);
             enableGenerationParams(true);
         });
 

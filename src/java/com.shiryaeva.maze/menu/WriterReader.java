@@ -4,14 +4,18 @@ import com.shiryaeva.maze.gui.MainFrame;
 import com.shiryaeva.maze.gui.MazeGridPanel;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class WriterReader {
 
-    protected static final String EXTENSION = ".txt";
-    protected static final String DESCRIPTION = "TXT files";
+    protected static final String EXTENSION = ".lab";
+    protected static final String DESCRIPTION = "LAB files";
+    private static final int MIN_GRID = 7;
+    private static final int MAX_GRID = 37;
+
 
     private final Logger logger = Logger.getGlobal();
 
@@ -60,6 +64,8 @@ public class WriterReader {
 
     public MazeGridPanel readFile() {
         JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("LAB FILES", "lab");
+        fileChooser.setFileFilter(filter);
         fileChooser.setDialogTitle("Выберите папку");
         logger.log(Level.INFO, "File chooser created");
         int result = fileChooser.showOpenDialog(fileChooser.getRootPane());
@@ -69,16 +75,24 @@ public class WriterReader {
             try {
                 FileInputStream fileInputStream = new FileInputStream(file);
                 ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                objectInputStream.defaultReadObject();
                 MazeGridPanel maze = (MazeGridPanel) objectInputStream.readObject();
                 logger.log(Level.INFO, "Maze = " + maze.toString());
                 objectInputStream.close();
-                return maze;
+                if (isValid(maze)) {
+                    return maze;
+                }
             } catch (ClassNotFoundException | IOException e) {
+                JOptionPane.showMessageDialog(null, "Пожалуйста, выберите другой файл", "Ошибка", JOptionPane.ERROR_MESSAGE);
                 logger.log(Level.SEVERE, e.toString());
                 e.printStackTrace();
             }
         }
         return null;
+    }
+
+    private boolean isValid(MazeGridPanel maze) {
+        return !maze.getGrid().isEmpty() && MIN_GRID <= maze.getRows() && maze.getRows() <= MAX_GRID && MIN_GRID <= maze.getCols() && maze.getCols() <= MAX_GRID;
     }
 
 }

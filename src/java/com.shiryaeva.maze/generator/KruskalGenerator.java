@@ -19,7 +19,7 @@ public class KruskalGenerator {
         this.grid = grid;
         this.panel = panel;
         Cell start = panel.getStart();
-        Cell goal = grid.get(grid.size() - 1);
+        Cell goal = panel.getGoal();
         current = start;
     }
 

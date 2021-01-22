@@ -16,11 +16,15 @@ public class SidewinderGenerator {
     private final Random r = new Random();
     private final MazeGridPanel panel;
     private Cell current;
+    private final Cell start;
+    private final Cell goal;
     private int index;
 
     public SidewinderGenerator(List<Cell> grid, MazeGridPanel panel) {
         this.grid = grid;
         this.panel = panel;
+        this.start = panel.getStart();
+        this.goal = panel.getGoal();
         index = 0;
         current = grid.get(index);
 
@@ -45,7 +49,7 @@ public class SidewinderGenerator {
 
     private void carve() {
         current.setVisited(true);
-
+        goal.setVisited(true);
         Cell bottom = current.getBottomNeighbour(grid);
         Cell left = current.getLeftNeighbour(grid);
 

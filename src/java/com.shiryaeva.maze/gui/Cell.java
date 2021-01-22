@@ -128,17 +128,20 @@ public class Cell implements Serializable {
         g.setColor(ColorScheme.EXTRA_LIGHT);
         this.setColor(ColorScheme.EXTRA_LIGHT);
 
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setStroke(new BasicStroke(3));
+
         if (walls[TOP]) {
-            g.drawLine(x2, y2, x2 + MainFrame.cellWidth, y2);
+            g2.drawLine(x2, y2, x2 + MainFrame.cellWidth, y2);
         }
         if (walls[RIGHT]) {
-            g.drawLine(x2 + MainFrame.cellWidth, y2, x2 + MainFrame.cellWidth, y2 + MainFrame.cellHeight);
+            g2.drawLine(x2 + MainFrame.cellWidth, y2, x2 + MainFrame.cellWidth, y2 + MainFrame.cellHeight);
         }
         if (walls[BOTTOM]) {
-            g.drawLine(x2 + MainFrame.cellWidth, y2 + MainFrame.cellHeight, x2, y2 + MainFrame.cellHeight);
+            g2.drawLine(x2 + MainFrame.cellWidth, y2 + MainFrame.cellHeight, x2, y2 + MainFrame.cellHeight);
         }
         if (walls[LEFT]) {
-            g.drawLine(x2, y2 + MainFrame.cellHeight, x2, y2);
+            g2.drawLine(x2, y2 + MainFrame.cellHeight, x2, y2);
         }
         Toolkit.getDefaultToolkit().sync();
     }

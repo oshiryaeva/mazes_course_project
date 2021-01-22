@@ -9,6 +9,7 @@ import com.shiryaeva.maze.solver.OneHandSolver;
 import com.shiryaeva.maze.solver.SolvingAlgorithm;
 import com.shiryaeva.maze.util.ColorScheme;
 
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -18,6 +19,7 @@ import java.awt.event.MouseListener;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,14 +27,13 @@ public class MazeGridPanel extends JPanel implements KeyListener, MouseListener,
 
     private static final long serialVersionUID = 6899798390690377644L;
     private final List<Cell> grid = new ArrayList<>();
-    private final Logger logger = Logger.getGlobal();
+    private transient final Logger logger = Logger.getGlobal();
     private List<Cell> currentCells = new ArrayList<>();
     private int rows;
     private int cols;
     private Cell start;
     private Cell goal;
     private transient Cell manualCurrent;
-    private transient Cell manualPrevious;
     private transient boolean clickable;
     private transient boolean manualSolve;
 
@@ -41,9 +42,9 @@ public class MazeGridPanel extends JPanel implements KeyListener, MouseListener,
         this.cols = cols;
         setOpaque(false);
         createGrid();
-        start = grid.get(0);
+        start = grid.get(randomIndex(true));
+        goal = grid.get(randomIndex(false));
         manualCurrent = start;
-        goal = grid.get(grid.size() - 1);
         this.clickable = MainFrame.manualEntranceExit;
         this.manualSolve = !MainFrame.autoSolve;
         addMouseListener(this);
@@ -51,7 +52,29 @@ public class MazeGridPanel extends JPanel implements KeyListener, MouseListener,
     }
 
     private boolean isOnEdge(Cell cell) {
-        return cell.getX() == 0 || cell.getY() == 0 || cell.getX() == (rows - 1) || cell.getY() == (cols - 1);
+        return isOnStartEdge(cell) || isOnEndEdge(cell);
+    }
+
+    private boolean isOnStartEdge(Cell cell) {
+        return cell.getX() == 0 || cell.getY() == 0;
+    }
+
+    private boolean isOnEndEdge(Cell cell) {
+        return cell.getX() == (rows - 1) || cell.getY() == (cols - 1);
+    }
+
+    private int randomIndex(boolean start) {
+        List<Integer> ids = new ArrayList<>();
+        for (Cell cell : grid) {
+            if (start) {
+                if (isOnStartEdge(cell))
+                    ids.add(cell.getId());
+            } else {
+                if (isOnEndEdge(cell))
+                    ids.add(cell.getId());
+            }
+        }
+        return ids.get(new Random().nextInt(ids.size()));
     }
 
     public void setClickable(boolean clickable) {
@@ -86,7 +109,6 @@ public class MazeGridPanel extends JPanel implements KeyListener, MouseListener,
         }
         candidate = getCellByCoordinates(tx, ty);
         if (candidate != null && !isOutOfBorder(tx, ty) && !candidate.isDeadEnd() && manualCurrent.getValidMoveNeighbours(grid).contains(candidate)) {
-            manualPrevious = manualCurrent;
             manualCurrent = candidate;
         }
         return manualCurrent;
@@ -234,6 +256,12 @@ public class MazeGridPanel extends JPanel implements KeyListener, MouseListener,
         revalidate();
     }
 
+    private void resetGoal() {
+        goal.resetCell(goal, getGraphics());
+        this.goal = null;
+        revalidate();
+    }
+
     public Cell getStart() {
         return start;
     }
@@ -252,8 +280,11 @@ public class MazeGridPanel extends JPanel implements KeyListener, MouseListener,
     }
 
     public void setGoal(Cell goal) {
+        logger.log(Level.INFO, "goal.id = " + goal.getId());
+resetGoal();
         this.goal = goal;
         goal.displayAsColor(getGraphics(), ColorScheme.EXIT);
+        revalidate();
     }
 
     public void setAutoSolve(boolean auto) {
@@ -274,18 +305,12 @@ public class MazeGridPanel extends JPanel implements KeyListener, MouseListener,
 
     }
 
-
     @Override
     public void keyPressed(KeyEvent e) {
         if (!MainFrame.autoSolve) {
             int c = e.getKeyCode();
             manualCurrent.setVisited(true);
             Cell candidate = getCellFromKeyboard(c);
-            if (candidate.equals(manualPrevious)) {
-                candidate.displayAsColor(getGraphics(), ColorScheme.TRANSPARENT);
-                validate();
-            }
-            manualPrevious = manualCurrent;
             manualCurrent = candidate;
             if (manualCurrent.getColor() != ColorScheme.PATH) {
                 manualCurrent.displayAsColor(getGraphics(), ColorScheme.PATH);
@@ -318,12 +343,7 @@ public class MazeGridPanel extends JPanel implements KeyListener, MouseListener,
         if (clickable && manualSolve) {
             if (SwingUtilities.isLeftMouseButton(e)) {
                 Cell candidate = grid.get(getCellIdByCoordinates(e.getX(), e.getY()));
-                if (candidate.equals(manualPrevious)) {
-                    candidate.displayAsColor(getGraphics(), ColorScheme.TRANSPARENT);
-                    validate();
-                }
                 if (!candidate.isDeadEnd() && manualCurrent.getAllNeighbours(grid).contains(candidate) && manualCurrent.getValidMoveNeighbours(grid).contains(candidate)) {
-                    manualPrevious = manualCurrent;
                     manualCurrent = candidate;
                 }
                 manualCurrent.setVisited(true);
@@ -363,5 +383,6 @@ public class MazeGridPanel extends JPanel implements KeyListener, MouseListener,
     public List<Cell> getGrid() {
         return grid;
     }
+
 
 }
