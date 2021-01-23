@@ -20,15 +20,15 @@ public enum HobbitTheme {
     public String getBackground() {
         switch (getTheme()) {
             case "Shire":
-                return "src/resources/shire.jpg";
+                return "shire.jpg";
             case "Rivendell":
-                return "src/resources/rivendell.jpg";
+                return "rivendell.jpg";
             case "Mirkwood":
-                return "src/resources/mirkwood.jpg";
+                return "mirkwood.jpg";
             case "Erebor":
-                return "src/resources/erebor.jpg";
+                return "erebor.jpg";
             default:
-                return "src/resources/shire.jpg";
+                return "shire.jpg";
         }
     }
 }

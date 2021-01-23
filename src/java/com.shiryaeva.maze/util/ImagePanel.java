@@ -2,6 +2,7 @@ package com.shiryaeva.maze.util;
 
 import javax.swing.*;
 import java.awt.*;
+import java.net.URL;
 
 public class ImagePanel extends JPanel {
 
@@ -42,7 +43,9 @@ public class ImagePanel extends JPanel {
     }
 
     public void setImg(String path) {
-        this.img = new ImageIcon(path).getImage();
+//        this.img = new ImageIcon(getClass().getResource(path)).getImage();
+        URL url = getClass().getClassLoader().getResource(path);
+        this.img = new ImageIcon(url).getImage();
         repaint();
     }
 

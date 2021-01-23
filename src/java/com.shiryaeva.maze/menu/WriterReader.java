@@ -75,7 +75,6 @@ public class WriterReader {
             try {
                 FileInputStream fileInputStream = new FileInputStream(file);
                 ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-                objectInputStream.defaultReadObject();
                 MazeGridPanel maze = (MazeGridPanel) objectInputStream.readObject();
                 logger.log(Level.INFO, "Maze = " + maze.toString());
                 objectInputStream.close();

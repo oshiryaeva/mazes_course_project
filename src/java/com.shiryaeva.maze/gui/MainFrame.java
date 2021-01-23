@@ -12,6 +12,11 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -100,9 +105,14 @@ public class MainFrame {
         JMenuItem aboutMenu = new JMenuItem("О системе");
         aboutMenu.setHorizontalAlignment(SwingConstants.LEFT);
         aboutMenu.addActionListener(e -> {
-            File htmlFile = new File("src/resources/about.html");
             try {
-                Desktop.getDesktop().browse(htmlFile.toURI());
+                URL url = this.getClass().getClassLoader().getResource("about.html");
+                File htmlFile = new File("about.html");
+                InputStream in = url.openStream();
+                Files.copy(in, Paths.get(htmlFile.getPath()), StandardCopyOption.REPLACE_EXISTING);
+                Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+                if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE))
+                    desktop.browse(htmlFile.toURI());
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
@@ -155,6 +165,7 @@ public class MainFrame {
         final int BORDER_SIZE = 10;
         mazeBorder.setBounds(0, 0, WIDTH + BORDER_SIZE, HEIGHT + BORDER_SIZE);
         mazeBorder.setBorder(BorderFactory.createEmptyBorder(BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE));
+
         mazeBorder.setImg(HobbitTheme.SHIRE.getBackground());
         mazeBorder.add(grid, BorderLayout.CENTER);
 
